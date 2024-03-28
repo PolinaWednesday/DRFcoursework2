@@ -150,7 +150,7 @@ REST_FRAMEWORK = {
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=2),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 }
 
@@ -178,5 +178,15 @@ CELERY_TASK_TRACK_STARTED = True
 
 # Максимальное время на выполнение задачи
 CELERY_TASK_TIME_LIMIT = 30 * 60
+
+CELERY_BEAT_SCHEDULE = {
+     'telegram_notifications': {
+        'task': 'habits.tasks.send_message_about_habits_time',
+        'schedule': timedelta(seconds=60),  # 8:00
+        # 'schedule': crontab(hour=8, minute=0),  # Уведомление каждый день в 8:00
+     },
+}
+
+CELERY_IMPORTS = ["habits.tasks"]
 
 TELEGRAM_BOT_API_KEY = os.getenv('TELEGRAM_BOT_API_KEY')

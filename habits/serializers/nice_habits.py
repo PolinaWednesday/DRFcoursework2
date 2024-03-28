@@ -8,4 +8,3 @@ class NiceHabitSerializer(serializers.ModelSerializer):
     class Meta:
         model = NiceHabit
         fields = '__all__'
-
