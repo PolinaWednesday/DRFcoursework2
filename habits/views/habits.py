@@ -1,3 +1,4 @@
+from django.shortcuts import redirect
 from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveAPIView, UpdateAPIView, DestroyAPIView
 from rest_framework.permissions import IsAuthenticated
 
@@ -5,6 +6,7 @@ from habits.models import Habits
 from habits.paginations import HabitsPagination
 from habits.serializers.habits import HabitsSerializer
 from users.permissions import IsOwner
+from users.services import MyBot
 
 
 class HabitCreateAPIView(CreateAPIView):
@@ -17,6 +19,13 @@ class HabitCreateAPIView(CreateAPIView):
         new_habit = serializer.save()
         new_habit.owner = self.request.user
         new_habit.save()
+
+    # Отправляем уведомление о новой привычке через Telegram
+        my_bot = MyBot()
+        message = f"Новая привычка: {new_habit.action} в {new_habit.time}"
+        my_bot.send_message_about_habit_time(message, self.request.user.telegram_id, new_habit.id)
+
+        return redirect('habits:habits_list')
 
 
 class HabitListAPIView(ListAPIView):
@@ -59,4 +68,3 @@ class HabitPublicListAPIView(ListAPIView):
     queryset = Habits.objects.all().filter(is_public=True)
     pagination_class = HabitsPagination
     permission_classes = [IsAuthenticated]
-    
